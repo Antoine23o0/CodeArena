@@ -1,0 +1,43 @@
+name: CI - Backend & Frontend
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        run: docker build -t codearena-backend ./api
+
+      - name: Run backend tests
+        run: docker run codearena-backend npm test
+        # ou pour Python : docker run codearena-backend pytest
+
+  frontend:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build frontend image
+        run: docker build -t codearena-frontend ./web
+
+      - name: Run frontend tests
+        run: docker run codearena-frontend npm test

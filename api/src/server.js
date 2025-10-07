@@ -1,30 +1,22 @@
 // Import modules
+import dotenv from 'dotenv';
 import express, { json } from 'express';
-import { connect } from 'mongoose';
-import cors from 'cors';
+import mongoose from 'mongoose';
+import userRoutes from './routes/authRoutes.js';
 
-// Init express app
+dotenv.config();
+
 const app = express();
+app.use(express.json());
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error(err));
+
+// Routes
+app.use('./api/users', userRoutes);
+
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/codearena';
-
-// Middlewares
-app.use(cors());
-app.use(json());
-
-// Test route
-app.get('/', (req, res) => {
-  res.json({ message: '🚀 API CodeArena is running!' });
-});
-
-// Connect to mongo and start server
-connect(MONGO_URI)
-  .then(() => {
-    console.log('✅ Connected to MongoDB');
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`✅ Server running on port ${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-  });
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+})

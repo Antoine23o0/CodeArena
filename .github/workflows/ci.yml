@@ -8,8 +8,20 @@ on:
 
 jobs:
   backend:
-    name: Backend Tests
+    name: Backend Tests (avec Mongo)
     runs-on: ubuntu-latest
+
+    # 👇 Démarre un conteneur Mongo accessible pendant le job
+    services:
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: Checkout repository
@@ -18,12 +30,19 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
+      # 🧱 Construction de l’image backend
       - name: Build backend image
         run: docker build -t codearena-backend ./api
 
-      - name: Run backend tests
-        run: docker run codearena-backend npm test
-        # ou pour Python : docker run codearena-backend pytest
+      # 🧪 Lancement des tests d’intégration avec Mongo
+      - name: Run backend integration tests
+        run: |
+          docker run --rm \
+            --network host \
+            -e MONGO_URL=mongodb://localhost:27017/test-db \
+            codearena-backend npm run test:integration
+        # Si Python :
+        # docker run --rm --network host -e MONGO_URL=mongodb://localhost:27017/test-db codearena-backend pytest
 
   frontend:
     name: Frontend Tests

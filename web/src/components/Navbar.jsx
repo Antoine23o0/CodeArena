@@ -14,7 +14,10 @@ export default function Navbar() {
   return (
     <nav className="bg-gray-900 text-white px-6 py-3 flex justify-between items-center shadow-md">
       {/* Logo / Titre */}
-      <Link to="/" className="text-2xl font-bold text-blue-400 hover:text-blue-300 transition">
+      <Link
+        to="/"
+        className="text-2xl font-bold text-blue-400 hover:text-blue-300 transition"
+      >
         CodeArena
       </Link>
 
@@ -22,12 +25,18 @@ export default function Navbar() {
       <div className="flex items-center space-x-6">
         {user ? (
           <>
-            <Link to="/" className="hover:text-blue-400 transition">
-              Concours
+            <Link to="/contests" className="hover:text-blue-400 transition">
+              Défis
             </Link>
-            <Link to="/scoreboard/global" className="hover:text-blue-400 transition">
-              Scoreboard
+
+            <Link to="/scoreboard" className="hover:text-blue-400 transition">
+              Classement
             </Link>
+
+            <span className="text-sm text-gray-300">
+              {user.username || "Joueur"}
+            </span>
+
             <button
               onClick={handleLogout}
               className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition"

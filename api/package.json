@@ -1,10 +1,8 @@
 {
   "name": "api",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
-  "scripts": {
-    "test": "jest --runInBand",
-    "test:integration": "jest --runInBand tests/integration.test.js"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +17,16 @@
     "mongoose": "^8.19.0"
   },
   "devDependencies": {
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "mongodb-memory-server": "^8.12.0",
+  "supertest": "^6.3.3"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "mocha --exit --recursive \"test/**/*.test.js\""
+  
     "jest": "^30.2.0"
   }
 }

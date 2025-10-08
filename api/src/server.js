@@ -1,7 +1,6 @@
 // Import modules
 import dotenv from 'dotenv';
 import express from 'express';
-import mongoose from 'mongoose';
 import apiRouter from './index.js';
 
 dotenv.config();
@@ -9,16 +8,16 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/codearena';
-mongoose.connect(mongoUri)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error(err));
-
 // Routes
 app.use('/api', apiRouter);
 
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// Error handler (during tests, include stack)
+app.use((err, req, res, next) => {
+	console.error(err.stack || err);
+	if (process.env.NODE_ENV === 'test') {
+		return res.status(500).json({ error: err.message, stack: err.stack });
+	}
+	return res.status(500).json({ error: err.message });
 });
+
+export default app;

@@ -1,3 +1,4 @@
+import express from 'express';
 import Contest from '../models/contest.js';
 const router = express.Router();
 
@@ -16,6 +17,17 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const contests = await Contest.find();
+        res.json(contests);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get active contests
+router.get('/active', async (req, res) => {
+    try {
+        const now = new Date();
+        const contests = await Contest.find({ startDate: { $lte: now }, EndDate: { $gte: now } });
         res.json(contests);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -42,7 +54,7 @@ router.put('/:id', async (req, res) => {
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
-})
+});
 
 // Delete
 router.delete('/:id', async (req, res) => {
@@ -50,9 +62,20 @@ router.delete('/:id', async (req, res) => {
         const contest = await Contest.findByIdAndDelete(req.params.id);
         if (!contest) return res.status(404).json({ error: 'Contest not found' });
         res.json({ message: 'Contest deleted successfully' });
-    } catch(err) {
-        res.status(500).json({error: err.message});
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-})
+});
 
-module.exports = router;
+// Get active contests
+router.get('/active', async (req, res) => {
+    try {
+        const now = new Date();
+        const contests = await Contest.find({ startDate: { $lte: now }, endDate: { $gte: now } });
+        res.json(contests);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+export default router;

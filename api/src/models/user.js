@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const SALT_ROUNDS = 10;
@@ -45,11 +45,11 @@ userSchema.methods.comparePassword = async function(password) {
 };
 
 userSchema.methods.generateJWT = function() {
-    return jwt.sign(
-        { id: this._id, username: this.username },
-        process.env.JWT_SECRET, // in .env file
-        { expiresIn: '1h' }
-    );
+  return jwt.sign(
+    { id: this._id, userName: this.userName },
+    process.env.JWT_SECRET, // in .env file
+    { expiresIn: '1h' }
+  );
 };
 
 export default mongoose.model("User", userSchema);

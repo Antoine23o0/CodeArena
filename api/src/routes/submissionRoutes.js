@@ -1,7 +1,8 @@
+import express from 'express';
 import Submission from '../models/submission.js';
 const router = express.Router();
 
-// CREATE
+// Create
 router.post('/', async (req, res) => {
     try {
         const submission = new Submission(req.body);
@@ -12,22 +13,23 @@ router.post('/', async (req, res) => {
     }
 });
 
-// READ all
+// Read all
 router.get('/', async (req, res) => {
     try {
-        const submissions = await find()
-            .populate('user')
-            .populate('problem');
+        const submissions = await Submission.find()
+            .populate('userId')
+            .populate('problemId')
+            .populate('eventId');
         res.json(submissions);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// READ by ID
+// Read by ID
 router.get('/:id', async (req, res) => {
     try {
-        const submission = await findById(req.params.id)
+        const submission = await Submission.findById(req.params.id)
             .populate('user')
             .populate('problem');
         if (!submission) return res.status(404).json({ error: 'Submission not found' });
@@ -37,10 +39,10 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// UPDATE
+// Update
 router.put('/:id', async (req, res) => {
     try {
-        const submission = await findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const submission = await Submission.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!submission) return res.status(404).json({ error: 'Submission not found' });
         res.json(submission);
     } catch (err) {
@@ -48,14 +50,38 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// DELETE
+// Delete
 router.delete('/:id', async (req, res) => {
     try {
-        const submission = await findByIdAndDelete(req.params.id);
+        const submission = await Submission.findByIdAndDelete(req.params.id);
         if (!submission) return res.status(404).json({ error: 'Submission not found' });
         res.json({ message: 'Submission deleted successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+// Read submissions by user ID
+router.get('/user/:userId', async (req, res) => {
+    try {
+        const submissions = await Submission.find({ userId: req.params.userId})
+            .populate('problemId')
+            .populate('eventId')
+            .populate('userId');
+            res.json(submissions);
+    } catch (err) {
+        res.status(500).json({error: err.message});
+    }
+});
+
+router.get('/problem/:problemId', async (req, res) => {
+    try {
+        const submissions = await Submission.find({ problemId: req.params.problemId})
+            .populate('userId')
+            .populate('eventId');
+            res.json(submissions);
+    } catch (err) {
+        res.status(500).json({error: err.message});
     }
 });
 

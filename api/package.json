@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-  "test": "jest --runInBand",
-  "test:integration": "jest --runInBand tests/integration.test.js"
- }
+    "test": "jest --runInBand",
+    "test:integration": "jest --runInBand tests/integration.test.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

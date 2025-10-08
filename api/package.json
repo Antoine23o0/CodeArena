@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -25,8 +24,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "mocha --exit --recursive \"test/**/*.test.js\""
-  
+    "test": "mocha --exit --recursive \"test/**/*.test.js\"",
     "jest": "^30.2.0"
   }
 }

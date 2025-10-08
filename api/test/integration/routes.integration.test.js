@@ -7,6 +7,7 @@ import { expect } from 'chai';
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'testsecret';
 
 import app from '../../src/server.js';
+import '../../test/test-setup.js'; // ensure in-memory mongo + mongoose connection
 
 let mongod;
 let server;

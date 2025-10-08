@@ -6,7 +6,6 @@ import app from '../../src/server.js';
 import User from '../../src/models/user.js';
 import Problem from '../../src/models/problem.js';
 import Contest from '../../src/models/contest.js';
-import Submission from '../../src/models/submission.js';
 
 let mongod;
 let server;

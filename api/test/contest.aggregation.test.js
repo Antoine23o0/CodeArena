@@ -5,6 +5,7 @@ import Problem from '../src/models/problem.js';
 import Submission from '../src/models/submission.js';
 import User from '../src/models/user.js';
 import Contest from '../src/models/contest.js';
+import './test-setup.js'; // ensure in-memory mongo + mongoose connection
 
 let mongod;
 

@@ -3,25 +3,52 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ContestList from "./pages/ContestList";
 import Contest from "./pages/Contest";
-import { AuthProvider } from "./context/AuthContext";
+import Submit from "./pages/Submit";
+import Scoreboard from "./pages/Scoreboard";
 import Navbar from "./components/Navbar";
+import PrivateRoute from "./components/PrivateRoute";
 
-
-
-function App() {
+export default function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Navbar />
-          <Routes>
-            <Route path="/" element={<ContestList />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/contest/:id" element={<Contest />} />
-          </Routes>
-      </Router>
-    </AuthProvider>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<ContestList />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/contests"
+          element={
+            <PrivateRoute>
+              <ContestList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/contest/:id"
+          element={
+            <PrivateRoute>
+              <Contest />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/submit"
+          element={
+            <PrivateRoute>
+              <Submit />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/scoreboard"
+          element={
+            <PrivateRoute>
+              <Scoreboard />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </Router>
   );
 }
-
-export default App;

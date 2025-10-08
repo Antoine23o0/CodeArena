@@ -1,51 +1,80 @@
 version: "3.9"
+
 services:
+  # --- Base de données MongoDB ---
   mongo:
     image: mongo:6
+    container_name: mongo
     restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: rootpassword
-      MONGO_INITDB_DATABASE: codearena
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASS}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
     volumes:
       - mongo_data:/data/db
-    networks:
-      - backend-network
-
-  mongo-express:
-    image: mongo-express
-    restart: unless-stopped
     ports:
-      - "8081:8081"
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: rootpassword
-      ME_CONFIG_MONGODB_SERVER: mongo
-      ME_CONFIG_MONGODB_PORT: 27017
-      ME_CONFIG_BASICAUTH_USERNAME: admin
-      ME_CONFIG_BASICAUTH_PASSWORD: admin
-    depends_on:
-      - mongo
+      - "27017:27017"
     networks:
       - backend-network
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet -u ${MONGO_ROOT_USER} -p ${MONGO_ROOT_PASS} --authenticationDatabase admin --eval 'db.runCommand({ ping: 1 }).ok' | grep 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
+  # --- API Backend (Node.js / Express) ---
   api:
     build: ./api
+    container_name: codearena_api
+    restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3000:5000"   # Port externe 3000 → interne 5000 du server.js
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: "mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASS}@mongo:27017/${MONGO_DB}?authSource=admin"
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGIN: ${CORS_ORIGIN}
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     networks:
       - backend-network
+    command: node server.js   # Lancement du serveur principal
 
+  # --- Frontend Web (React + Vite) ---
   web:
-    build: ./web
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: codearena_web
+    restart: unless-stopped
     ports:
       - "5173:5173"
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+      HOST: "0.0.0.0"
     depends_on:
       - api
     networks:
       - backend-network
+
+  # --- Sandbox sécurisé pour exécution de code Python ---
+  sandbox:
+    build: ./runner
+    container_name: codearena_sandbox
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      TIMEOUT: ${TIMEOUT}
+      MEMORY_LIMIT: ${MEMORY_LIMIT}
+    networks:
+      - backend-network
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./runner:/app   # Monte le dossier runner local dans /app du conteneur
 
 volumes:
   mongo_data:
@@ -53,3 +82,7 @@ volumes:
 networks:
   backend-network:
     driver: bridge
+
+
+
+

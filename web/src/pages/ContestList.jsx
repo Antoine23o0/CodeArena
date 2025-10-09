@@ -5,9 +5,9 @@ import { Link } from "react-router-dom";
 export default function ContestList() {
   const [contests, setContests] = useState([]);
 
-  useEffect(() => {
-    api.get("/contests").then(res => setContests(res.data)).catch(() => {});
-  }, []);
+  // useEffect(() => {
+  //   api.get("/contests").then(res => setContests(res.data)).catch(() => {});
+  // }, []);
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">

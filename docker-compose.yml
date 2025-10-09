@@ -30,7 +30,9 @@ services:
       - backend-network
 
   api:
-    build: ./api
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
     ports:
       - "3000:3000"
     depends_on:

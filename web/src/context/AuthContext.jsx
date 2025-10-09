@@ -17,16 +17,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
   
   //Connexion
-  const login = async (username, password) => {
-    const res = await api.post("/login", { username, password });
+  const login = async (userName, password) => {
+    const res = await api.post("/login", { userName, password });
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("user", JSON.stringify(res.data.user));
     setUser(res.data.user);
   };
 
   //Inscription
-  const register = async (username, password) => {
-    const res = await api.post("/register", { username, password });
+  const register = async (userName, password) => {
+    const res = await api.post("/register", { userName, password });
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("user", JSON.stringify(res.data.user));
     setUser(res.data.user);
@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
 
 
 // import { createContext, useState, useEffect } from "react";
@@ -99,4 +98,5 @@ export const AuthProvider = ({ children }) => {
 //     </AuthContext.Provider>
 //   );
 // };
+
 

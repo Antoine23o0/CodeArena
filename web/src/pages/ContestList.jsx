@@ -15,8 +15,8 @@ export default function ContestList() {
 
     (async () => {
       try {
-        const res = await api.get("/contests", { signal: controller.signal });
-        if (!cancelled) setContests(res.data || []);
+        //const res = await api.get("/contests", { signal: controller.signal });
+        // if (!cancelled) setContests(res.data || []);
       } catch (err) {
         if (!/abort/i.test(err.name)) console.error("fetch contests error", err);
       }

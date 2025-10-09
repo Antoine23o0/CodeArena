@@ -17,16 +17,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
   
   //Connexion
-  const login = async (userName, password) => {
-    const res = await api.post("/login", { userName, password });
+  const login = async (username, password) => {
+    const res = await api.post("/login", { username, password });
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("user", JSON.stringify(res.data.user));
     setUser(res.data.user);
   };
 
   //Inscription
-  const register = async (userName, password) => {
-    const res = await api.post("/register", { userName, password });
+  const register = async (username, password) => {
+    const res = await api.post("/register", { username, password });
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("user", JSON.stringify(res.data.user));
     setUser(res.data.user);

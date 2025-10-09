@@ -26,21 +26,17 @@ cd ../web && npm install
 
 ### 2. Variables d’environnement principales
 
-Backend (`api/.env` recommandé) :
+Des fichiers d’exemple sont fournis (`api/.env.example` et `web/.env.example`). Copiez-les puis ajustez les valeurs selon votre environnement :
 
 ```bash
-MONGO_URI=mongodb://localhost:27017/codearena
-JWT_SECRET=change-me
-ALLOWED_ORIGINS=http://localhost:5173
-RUNNER_PATH=../runner/run.py
+cp api/.env.example api/.env
+cp web/.env.example web/.env
 ```
 
-Frontend (`web/.env`) :
+Valeurs par défaut proposées :
 
-```bash
-VITE_API_URL=http://localhost:3000/api
-VITE_SOCKET_URL=http://localhost:3000
-```
+- **Backend** : `MONGO_URI` pointe vers une instance locale (ou via Docker avec les identifiants `root/rootpassword`), `JWT_SECRET` doit être remplacé par un secret fort, `ALLOWED_ORIGINS` répertorie les origines autorisées et `RUNNER_PATH` indique où se trouve `runner/run.py`.
+- **Frontend** : `VITE_API_URL` cible l’API (`/api`) et `VITE_SOCKET_URL` la passerelle Socket.IO.
 
 ### 3. Lancer les services
 

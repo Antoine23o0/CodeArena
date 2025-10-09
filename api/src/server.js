@@ -1,7 +1,7 @@
 // Import modules
 import dotenv from 'dotenv';
 import express from 'express';
-import apiRouter from './index.js';
+import apiRouter from './routes/index.js';
 
 dotenv.config();
 

@@ -28,10 +28,11 @@ services:
     restart: unless-stopped
     ports:
       - "3000:5000"   # Port externe 3000 → interne 5000 du server.js
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
       PORT: 5000
-      MONGO_URI: "mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASS}@mongo:27017/${MONGO_DB}?authSource=admin"
       JWT_SECRET: ${JWT_SECRET}
       CORS_ORIGIN: ${CORS_ORIGIN}
     depends_on:
@@ -39,7 +40,7 @@ services:
         condition: service_healthy
     networks:
       - backend-network
-    command: node server.js   # Lancement du serveur principal
+    command: node src/index.js  # Lancement du serveur principal
 
   # --- Frontend Web (React + Vite) ---
   web:

@@ -14,18 +14,18 @@ async function start() {
   try {
     mongoose.set('strictQuery', false);
 
-    console.log('Connecting to MongoDB:', MONGODB_URI);
+    //console.log('Connecting to MongoDB:', MONGODB_URI);
     await mongoose.connect(MONGODB_URI, {});
 
-    console.log('Connected to MongoDB');
+    //console.log('Connected to MongoDB');
 
     const server = app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+      //console.log(`Server is running on port ${PORT}`);
     });
 
     // Graceful shutdown
     const shutdown = async () => {
-      console.log('Shutting down...');
+      //console.log('Shutting down...');
       await mongoose.disconnect();
       server.close(() => process.exit(0));
     };
@@ -46,4 +46,3 @@ if (process.argv[1] && process.argv[1] === __filename && process.env.NODE_ENV !=
 // export start for manual invocation by scripts/tests if needed
 export default start;
 
-const router = express.Router();

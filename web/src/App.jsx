@@ -16,22 +16,22 @@ export default function App() {
         <Route path="/" element={<ContestList />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route
+        {/* <Route
           path="/contests"
           element={
             <PrivateRoute>
               <ContestList />
             </PrivateRoute>
           }
-        />
-        <Route
+        /> */}
+        {/* <Route
           path="/contest/:id"
           element={
             <PrivateRoute>
               <Contest />
             </PrivateRoute>
           }
-        />
+        /> */}
         <Route
           path="/submit"
           element={

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../api";
+import api from "../api/api";
 import { useSearchParams } from "react-router-dom";
 
 export default function Submit() {

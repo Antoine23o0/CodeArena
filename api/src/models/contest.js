@@ -10,7 +10,7 @@ const contestSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
-  EndDate: {
+  endDate: {
     type: Date,
     required: true
   },

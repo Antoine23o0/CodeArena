@@ -52,7 +52,7 @@ cd web
 npm run dev
 ```
 
-Le frontend est disponible sur `http://localhost:5173`, l’API sur `http://localhost:3000/api` et le flux Socket.IO sur `http://localhost:3000`.
+Le frontend est disponible sur `http://localhost:5173` (ou depuis l’adresse IP publique de la machine hôte), l’API REST sur `http://localhost:3000/api` et le flux Socket.IO sur `http://localhost:3000`.
 
 ## Lancer la stack avec Docker
 
@@ -62,7 +62,16 @@ Prérequis : Docker Engine, `docker compose` et les ports `27017`, `3000`, `51
 docker compose up --build
 ```
 
-Cette commande construit les services `api` (Express + Socket.IO), `web` (Vite) et `runner`, démarre MongoDB ainsi que Mongo Express. Dans cet environnement d’évaluation, Docker n’est pas disponible (`bash: command not found: docker`) ; exécutez cette commande sur une machine équipée de Docker.
+Les ports exposés sont configurés pour répondre aux contraintes suivantes :
+
+| Service              | Conteneur                 | Binding hôte      | Description |
+|----------------------|---------------------------|-------------------|-------------|
+| Frontend (Vite)      | `codearena-web`           | `0.0.0.0:5173`     | Disponible publiquement sur l’adresse IP de la machine hôte. |
+| API + Socket.IO      | `codearena-api`           | `127.0.0.1:3000`   | Accessible uniquement en local (le frontend y accède via le navigateur). |
+| MongoDB              | `codearena-mongo`         | `127.0.0.1:27017`  | Restreint à la boucle locale pour éviter une exposition accidentelle. |
+| Mongo Express (UI)   | `codearena-mongo-express` | `127.0.0.1:8081`   | Interface d’administration Mongo disponible depuis le poste local. |
+
+Après le démarrage, `docker compose ps` affiche directement ces noms de conteneurs pour faciliter le suivi des services. Dans cet environnement d’évaluation, Docker n’est pas disponible (`bash: command not found: docker`) ; exécutez cette commande sur une machine équipée de Docker.
 
 ## Fonctionnalités clés
 

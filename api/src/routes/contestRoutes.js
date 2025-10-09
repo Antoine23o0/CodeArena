@@ -13,10 +13,10 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Real all
+// Read all
 router.get('/', async (req, res) => {
     try {
-        const contests = await Contest.find();
+        const contests = await Contest.find().lean();
         res.json(contests);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -62,17 +62,6 @@ router.delete('/:id', async (req, res) => {
         const contest = await Contest.findByIdAndDelete(req.params.id);
         if (!contest) return res.status(404).json({ error: 'Contest not found' });
         res.json({ message: 'Contest deleted successfully' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Get active contests
-router.get('/active', async (req, res) => {
-    try {
-        const now = new Date();
-        const contests = await Contest.find({ startDate: { $lte: now }, endDate: { $gte: now } });
-        res.json(contests);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

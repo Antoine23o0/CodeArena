@@ -8,7 +8,7 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 // prefer explicit IPv4 fallback to avoid ::1/IPv6 connection attempts
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/codearena';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongo:27017/codearena';
 
 async function start() {
   try {

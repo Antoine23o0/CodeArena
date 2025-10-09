@@ -4,25 +4,30 @@ import User from '../models/user.js';
 
 const router = express.Router();
 
-// Signin route
 // Register route
 router.post('/register', async (req, res) => {
     try {
-        const user = new User(req.body);
+        const { username, password } = req.body;
+        if (!username || !password) return res.status(400).json({ error: 'Username and password are required' });
+        
+        const existingUser = await User.findOne({ userName: username });
+        if (existingUser) return res.status(400).json({ error: 'Username already taken' });
+        
+        const user = new User({ userName: username, password });
         await user.save();
+        
         const token = user.generateJWT();
         res.status(201).json({ user: user.userName, token });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(500).json({error: err.message})
     }
-
 });
 
 // Login route
 router.post('/login', async (req, res) => {
     try {
-    const { username, password } = req.body;
-    const user = await User.findOne({ userName: username });
+        const { username, password } = req.body;
+        const user = await User.findOne({ userName: username });
         if (!user) return res.status(400).json({ error: 'User not found' });
 
         const isMatch = await user.comparePassword(password);

@@ -73,3 +73,59 @@ jobs:
           python-version: '3.11'
       - name: Validate runner scripts
         run: python -m compileall runner
+
+  compose:
+    name: Docker Compose Smoke Test
+    runs-on: ubuntu-latest
+    needs:
+      - backend
+      - frontend
+      - runner
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build and start stack
+        run: docker compose up --build -d
+      - name: Show service status
+        run: docker compose ps
+      - name: Wait for API readiness
+        run: |
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:3000/api/contests > /tmp/api-response.json; then
+              python3 - <<'PY'
+import json
+from pathlib import Path
+path = Path('/tmp/api-response.json')
+try:
+    data = json.loads(path.read_text())
+except Exception as exc:  # pragma: no cover
+    print(f"Unable to parse contests payload: {exc}")
+    raise SystemExit(1)
+if isinstance(data, list) and data:
+    first = data[0]
+    print({'titre': first.get('title'), 'difficulte': first.get('difficulty')})
+PY
+              exit 0
+            fi
+            echo "API not ready yet (attempt ${attempt}/30)"
+            sleep 5
+          done
+          echo "API failed to respond in time"
+          docker compose logs api
+          exit 1
+      - name: Wait for frontend readiness
+        run: |
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:5173 > /tmp/web-response.html; then
+              head -n 20 /tmp/web-response.html
+              exit 0
+            fi
+            echo "Frontend not ready yet (attempt ${attempt}/30)"
+            sleep 5
+          done
+          echo "Frontend failed to start in time"
+          docker compose logs web
+          exit 1
+      - name: Tear down stack
+        if: always()
+        run: docker compose down -v

@@ -118,6 +118,17 @@ echo '{"language":"python","code":"print(1)","testCases":[{"input":"","expectedO
 
 Adaptez `language` à `java` ou `c` et fournissez un code compatible (`Main` pour Java, fonction `main` pour C) pour tester les autres environnements.
 
+## Intégration continue
+
+Le workflow GitHub Actions [`CI`](.github/workflows/ci.yml) vérifie automatiquement le projet à chaque push/PR sur `main` et `dev` :
+
+- **Backend** : installation des dépendances puis exécution de la suite d’intégration contre un MongoDB de test.
+- **Frontend** : linting et construction du client React.
+- **Runner** : compilation statique des scripts Python.
+- **Smoke test Docker** : `docker compose up --build -d` lance la stack complète, les jobs patientent jusqu’à ce que l’API (`http://127.0.0.1:3000/api/contests`) et le frontend (`http://127.0.0.1:5173`) répondent, puis démontent les conteneurs.
+
+Cette étape remplace l’exécution manuelle de `docker compose up --build` et garantit que la pile peut démarrer sur l’infrastructure CI.
+
 ## Contributions
 
 1. Créez une branche à partir de `dev`.

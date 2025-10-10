@@ -7,7 +7,8 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "node --test",
-    "test:integration": "node --test tests/integration.test.js"
+    "test:integration": "node --test tests/integration.test.js",
+    "seed:contests": "node scripts/seedContests.js"
   },
   "keywords": [],
   "author": "",

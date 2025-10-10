@@ -1,5 +1,6 @@
 import express from 'express';
 import Contest from '../models/contest.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 

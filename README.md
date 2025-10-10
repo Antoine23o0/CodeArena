@@ -37,8 +37,8 @@ cp .env.example .env
 Valeurs par défaut proposées :
 
 - **Backend** : `MONGO_URI` pointe vers une instance locale (ou via Docker avec les identifiants `root/rootpassword`), `JWT_SECRET` doit être remplacé par un secret fort, `ALLOWED_ORIGINS` répertorie les origines autorisées (ajoutez `http://195.15.242.237:5173` pour la VM) et `RUNNER_PATH` indique où se trouve `runner/run.py`.
-- **Frontend** : `VITE_API_URL` cible l’API et `VITE_SOCKET_URL` la passerelle Socket.IO. En production sur la VM, remplacez `localhost` par `http://195.15.242.237` suivi du port approprié.
-- **Docker compose** : `.env` contrôle les bindings de ports et les URLs publiques diffusées aux conteneurs (`PUBLIC_HOST`, `PUBLIC_WEB_ORIGIN`, `PUBLIC_API_URL`, `PUBLIC_SOCKET_URL`, etc.). Les valeurs par défaut laissent l’API/Mongo privés en développement, mais sur la VM réglez `PUBLIC_HOST=195.15.242.237` et ajustez les bindings (`API_BIND_HOST`, `MONGO_BIND_HOST`, …) pour exposer les services attendus.
+- **Frontend** : `VITE_API_URL` cible l’API et `VITE_SOCKET_URL` la passerelle Socket.IO. En production sur la VM, remplacez `localhost` par `http://195.15.242.237` ou laissez les valeurs relatives (`/api`) si vous servez tout via Docker.
+- **Docker compose** : `.env` contrôle les bindings de ports et les URLs publiques diffusées aux conteneurs (`PUBLIC_HOST`, `PUBLIC_WEB_ORIGIN`, `PUBLIC_API_URL`, `PUBLIC_SOCKET_URL`, etc.). Les valeurs par défaut n’exposent que le frontend ; l’API et MongoDB restent jointes via le réseau interne. Sur la VM, réglez `PUBLIC_HOST=195.15.242.237` et ajustez uniquement `PUBLIC_WEB_ORIGIN`/`WEB_PORT` si nécessaire.
 
 ### 3. Lancer les services
 
@@ -71,19 +71,18 @@ Le script met à jour les concours déjà présents en se basant sur le titre et
 
 ## Lancer la stack avec Docker
 
-Prérequis : Docker Engine, `docker compose` et les ports `27017`, `3000`, `5173`, `8081` libres.
+Prérequis : Docker Engine, `docker compose` et le port `5173` libre (ainsi que `8081` si vous décidez d’exposer Mongo Express).
 
 1. Configurez la racine `.env` selon votre contexte (développement local ou VM). Pour la VM fournie par le professeur :
 
    ```dotenv
    PUBLIC_HOST=195.15.242.237
    PUBLIC_WEB_ORIGIN=http://195.15.242.237:5173
-   PUBLIC_API_URL=http://195.15.242.237:3000/api
-   PUBLIC_SOCKET_URL=http://195.15.242.237:3000
+   PUBLIC_API_URL=/api
+   PUBLIC_SOCKET_URL=
    WEB_BIND_HOST=0.0.0.0
-   API_BIND_HOST=195.15.242.237
-   MONGO_BIND_HOST=195.15.242.237
-   MONGO_EXPRESS_BIND_HOST=195.15.242.237
+   WEB_PORT=5173
+   MONGO_EXPRESS_BIND_HOST=195.15.242.237 # Facultatif : expose Mongo Express publiquement
    ```
 
 2. Lancez la stack :
@@ -97,9 +96,13 @@ Les ports exposés sont configurés pour répondre aux contraintes suivantes :
 | Service              | Conteneur        | Binding hôte      | Description |
 |----------------------|------------------|-------------------|-------------|
 | Frontend (Nginx)     | `web`            | `${WEB_BIND_HOST:-0.0.0.0}:${WEB_PORT:-5173}` → 80 | Site statique construit par Vite puis servi via Nginx. |
-| API + Socket.IO      | `api`            | `${API_BIND_HOST:-127.0.0.1}:${API_PORT:-3000}`   | Accessible localement par défaut, configurable pour la VM. |
-| MongoDB              | `mongo`          | `${MONGO_BIND_HOST:-127.0.0.1}:${MONGO_PORT:-27017}`  | Restreint à la boucle locale sauf si vous exposez explicitement la base pour la VM. |
+| API + Socket.IO      | `api`            | _Non exposé (réseau interne)_ | Rejoint par Nginx depuis le service `web` (proxy `/api` et `/socket.io`). |
+| MongoDB              | `mongo`          | _Non exposé (réseau interne)_ | Accessible uniquement par les autres conteneurs (API, Mongo Express). |
 | Mongo Express (UI)   | `mongo-express`  | `${MONGO_EXPRESS_BIND_HOST:-127.0.0.1}:${MONGO_EXPRESS_PORT:-8081}`   | Interface d’administration Mongo, à exposer uniquement si nécessaire. |
+
+Le service `web` agit également comme reverse-proxy : toutes les requêtes HTTP/S sur `/api` et
+`/socket.io` sont relayées vers le backend `api`. Depuis l’extérieur, l’API est donc joignable via la
+même URL que le frontend (ex. `http://195.15.242.237:5173/api`).
 
 Les entrées `PUBLIC_*` du fichier `.env` sont transmises aux conteneurs : `PUBLIC_WEB_ORIGIN` alimente
 `ALLOWED_ORIGINS` côté API, tandis que `PUBLIC_API_URL` et `PUBLIC_SOCKET_URL` sont injectées comme

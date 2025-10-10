@@ -58,6 +58,17 @@ npm run dev
 
 Le frontend est disponible sur `http://localhost:5173`, l’API sur `http://localhost:3000/api` et le flux Socket.IO sur `http://localhost:3000`.
 
+### 4. Peupler la base avec des concours d'exemple
+
+Une fois MongoDB opérationnel, vous pouvez injecter dix concours thématiques prêts à l'emploi pour tester le parcours complet :
+
+```bash
+cd api
+npm run seed:contests
+```
+
+Le script met à jour les concours déjà présents en se basant sur le titre et ajuste automatiquement leur statut (`scheduled`, `running`, `finished`) en fonction des dates.
+
 ## Lancer la stack avec Docker
 
 Prérequis : Docker Engine, `docker compose` et les ports `27017`, `3000`, `5173`, `8081` libres.

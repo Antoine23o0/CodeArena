@@ -25,6 +25,29 @@ const contestSchema = new mongoose.Schema(
       enum: ['scheduled', 'running', 'finished'],
       default: 'scheduled',
     },
+    difficulty: {
+      type: String,
+      enum: [
+        'Débutant',
+        'Débutant+',
+        'Intermédiaire',
+        'Intermédiaire+',
+        'Confirmé',
+        'Avancé',
+        'Expert',
+        'Expert+',
+        'Maître',
+        'Légende',
+      ],
+      default: 'Débutant',
+      trim: true,
+    },
+    difficultyOrder: {
+      type: Number,
+      min: 1,
+      max: 10,
+      default: 1,
+    },
     problemsList: [
       {
         type: mongoose.Schema.Types.ObjectId,

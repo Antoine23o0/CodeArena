@@ -65,7 +65,7 @@ cd api
 npm run seed:contests
 ```
 
-Le script met à jour les concours déjà présents en se basant sur le titre et ajuste automatiquement leur statut (`scheduled`, `running`, `finished`) en fonction des dates.
+Le script met à jour les concours déjà présents en se basant sur le titre et ajuste automatiquement leur statut (`scheduled`, `running`, `finished`) en fonction des dates. Chaque concours est décrit en français et porte un niveau (`Niveau 1` à `Niveau 10`) permettant de progresser des défis les plus accessibles jusqu'à la finale « Légende ».
 
 ## Lancer la stack avec Docker
 

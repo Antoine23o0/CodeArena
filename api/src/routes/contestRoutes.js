@@ -35,7 +35,7 @@ router.post('/', authenticate, async (req, res) => {
 
 router.get('/', optionalAuth, async (_req, res) => {
   try {
-    const contests = await Contest.find().sort({ startDate: 1 });
+    const contests = await Contest.find().sort({ difficultyOrder: 1, startDate: 1 });
     const updates = contests.filter((contest) => updateContestStatus(contest));
     await Promise.all(updates.map((contest) => contest.save()));
     return res.json(contests);
@@ -50,7 +50,7 @@ router.get('/active', optionalAuth, async (_req, res) => {
     const contests = await Contest.find({
       startDate: { $lte: now },
       endDate: { $gte: now },
-    }).sort({ startDate: 1 });
+    }).sort({ difficultyOrder: 1, startDate: 1 });
     const updates = contests.filter((contest) => updateContestStatus(contest));
     await Promise.all(updates.map((contest) => contest.save()));
     return res.json(contests);

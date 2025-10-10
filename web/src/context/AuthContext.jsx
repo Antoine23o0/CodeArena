@@ -1,6 +1,9 @@
 import { createContext, useState, useEffect } from "react";
 import api from "../api";
 
+// Le contexte doit rester dans ce fichier pour partager la logique avec le provider,
+// on désactive donc la règle Fast Refresh qui impose d'exporter uniquement des composants.
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
 
 const persistSession = (token, user) => {

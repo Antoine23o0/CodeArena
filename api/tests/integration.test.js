@@ -1,17 +1,35 @@
-const mongoose = require('mongoose');
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import mongoose from 'mongoose';
 
-const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017/test-db';
+const mongoUrl = process.env.MONGO_URL ?? 'mongodb://127.0.0.1:27017/test-db';
+let connectionError;
 
-describe('MongoDB connection', () => {
-  beforeAll(async () => {
-    await mongoose.connect(mongoUrl);
-  });
+test.before(async () => {
+  try {
+    await mongoose.connect(mongoUrl, {
+      serverSelectionTimeoutMS: 2000,
+    });
+  } catch (error) {
+    connectionError = error;
+  }
+});
 
-  afterAll(async () => {
+test.after(async () => {
+  if (mongoose.connection.readyState !== 0) {
     await mongoose.disconnect();
-  });
+  }
+});
 
-  test('should connect to MongoDB successfully', () => {
-    expect(mongoose.connection.readyState).toBe(1); // 1 = connected
-  });
+test('should connect to MongoDB successfully', (t) => {
+  if (connectionError) {
+    if (process.env.CI) {
+      throw connectionError;
+    }
+
+    t.skip(`MongoDB not available locally: ${connectionError.message}`);
+    return;
+  }
+
+  assert.equal(mongoose.connection.readyState, 1);
 });

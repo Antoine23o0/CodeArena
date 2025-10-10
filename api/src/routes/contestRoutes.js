@@ -15,8 +15,10 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const contests = await Contest.find();
-    res.json(contests);
+    const contests = await Contest.find().sort({ difficultyOrder: 1, startDate: 1 });
+    const updates = contests.filter((contest) => updateContestStatus(contest));
+    await Promise.all(updates.map((contest) => contest.save()));
+    return res.json(contests);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -28,8 +30,28 @@ router.get('/active', async (req, res) => {
     const contests = await Contest.find({
       startDate: { $lte: now },
       endDate: { $gte: now },
+    }).sort({ difficultyOrder: 1, startDate: 1 });
+    const updates = contests.filter((contest) => updateContestStatus(contest));
+    await Promise.all(updates.map((contest) => contest.save()));
+    return res.json(contests);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/:id', optionalAuth, async (req, res) => {
+  try {
+    const contest = await Contest.findById(req.params.id).populate({
+      path: 'problemsList',
+      select: 'title difficulty maxScore',
     });
-    res.json(contests);
+    if (!contest) {
+      return res.status(404).json({ error: 'Contest not found' });
+    }
+    if (updateContestStatus(contest)) {
+      await contest.save();
+    }
+    return res.json(contest);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

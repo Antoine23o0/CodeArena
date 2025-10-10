@@ -44,6 +44,8 @@ const run = async () => {
       existing.startDate = data.startDate;
       existing.endDate = data.endDate;
       existing.status = data.status;
+      existing.difficulty = data.difficulty;
+      existing.difficultyOrder = data.difficultyOrder;
       await existing.save();
       console.log(`Updated contest: ${data.title}`);
     } else {

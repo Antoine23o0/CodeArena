@@ -16,7 +16,16 @@ export default function ContestList() {
   useEffect(() => {
     api
       .get("/contests")
-      .then((res) => setContests(res.data))
+      .then((res) => {
+        setContests(
+          [...res.data].sort((a, b) => {
+            const orderA = a.difficultyOrder ?? Number.MAX_SAFE_INTEGER;
+            const orderB = b.difficultyOrder ?? Number.MAX_SAFE_INTEGER;
+            if (orderA !== orderB) return orderA - orderB;
+            return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+          }),
+        );
+      })
       .catch(() => setContests([]));
   }, []);
 
@@ -39,6 +48,10 @@ export default function ContestList() {
                   <div>
                     <h2 className="text-2xl font-semibold mb-1">{contest.title}</h2>
                     <p className="text-slate-300 mb-3">{contest.description}</p>
+                    <p className="text-sm text-slate-400 mb-3">
+                      Niveau {contest.difficultyOrder ?? "?"}
+                      {contest.difficulty ? ` · ${contest.difficulty}` : ""}
+                    </p>
                     <div className="text-sm text-slate-400 space-y-1">
                       <p>Début : {formatDate(contest.startDate)}</p>
                       <p>Fin : {formatDate(contest.endDate)}</p>

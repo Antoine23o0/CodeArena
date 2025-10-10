@@ -87,6 +87,10 @@ export default function Contest() {
             <div>
               <h1 className="text-3xl font-bold mb-1">{contest.title}</h1>
               <p className="text-slate-300 max-w-2xl">{contest.description}</p>
+              <p className="text-sm text-slate-400 mt-2">
+                Niveau {contest.difficultyOrder ?? "?"}
+                {contest.difficulty ? ` · ${contest.difficulty}` : ""}
+              </p>
               <div className="mt-3 text-sm text-slate-400 space-y-1">
                 <p>
                   Début : <span className="text-slate-200">{formatDate(contest.startDate)}</span>

@@ -40,6 +40,11 @@ services:
       dockerfile: ./api/Dockerfile
     ports:
       - "${API_BIND_HOST:-127.0.0.1}:${API_PORT:-3000}:3000"
+    environment:
+      PORT: "${API_PORT:-3000}"
+      MONGO_URI: "${MONGO_URI:-mongodb://root:rootpassword@mongo:27017/codearena?authSource=admin}"
+      ALLOWED_ORIGINS: "${PUBLIC_WEB_ORIGIN:-http://localhost:5173}"
+      AUTO_SEED_CONTESTS: "${AUTO_SEED_CONTESTS:-true}"
     depends_on:
       - mongo
     networks:
@@ -50,6 +55,10 @@ services:
     build: ./web
     ports:
       - "${WEB_BIND_HOST:-0.0.0.0}:${WEB_PORT:-5173}:5173"
+    environment:
+      VITE_API_URL: "${PUBLIC_API_URL:-http://localhost:3000/api}"
+      VITE_SOCKET_URL: "${PUBLIC_SOCKET_URL:-http://localhost:3000}"
+      VITE_API_FALLBACK_PORT: "${API_PORT:-3000}"
     depends_on:
       - api
     networks:

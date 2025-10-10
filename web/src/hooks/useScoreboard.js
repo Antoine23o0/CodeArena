@@ -1,20 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
-import api from "../api";
+import api, { apiOrigin } from "../api";
 
 const resolveSocketUrl = () => {
   const explicit = import.meta.env.VITE_SOCKET_URL?.trim();
   if (explicit) {
     return explicit.replace(/\/$/, "");
   }
-  const apiUrl = import.meta.env.VITE_API_URL?.trim();
-  if (apiUrl) {
-    try {
-      const { origin } = new URL(apiUrl);
-      return origin;
-    } catch {
-      return apiUrl;
+  if (apiOrigin) {
+    return apiOrigin;
+  }
+  if (typeof window !== "undefined") {
+    const { protocol, hostname } = window.location;
+    const fallbackPort = import.meta.env.VITE_API_FALLBACK_PORT?.trim() || "3000";
+    if ((protocol === "http:" && fallbackPort === "80") || (protocol === "https:" && fallbackPort === "443")) {
+      return `${protocol}//${hostname}`;
     }
+    return `${protocol}//${hostname}:${fallbackPort}`;
   }
   return "http://localhost:3000";
 };

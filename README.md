@@ -38,7 +38,7 @@ Valeurs par défaut proposées :
 
 - **Backend** : `MONGO_URI` pointe vers une instance locale (ou via Docker avec les identifiants `root/rootpassword`), `JWT_SECRET` doit être remplacé par un secret fort, `ALLOWED_ORIGINS` répertorie les origines autorisées (ajoutez `http://195.15.242.237:5173` pour la VM) et `RUNNER_PATH` indique où se trouve `runner/run.py`.
 - **Frontend** : `VITE_API_URL` cible l’API et `VITE_SOCKET_URL` la passerelle Socket.IO. En production sur la VM, remplacez `localhost` par `http://195.15.242.237` suivi du port approprié.
-- **Docker compose** : `.env` contrôle les bindings de ports (`WEB_BIND_HOST`, `API_BIND_HOST`, etc.). L’exemple laisse l’API/Mongo privés en développement, mais vous pouvez fixer `API_BIND_HOST=195.15.242.237` (ainsi que les valeurs Mongo) pour rendre ces services accessibles depuis l’extérieur de la VM.
+- **Docker compose** : `.env` contrôle les bindings de ports et les URLs publiques diffusées aux conteneurs (`PUBLIC_HOST`, `PUBLIC_WEB_ORIGIN`, `PUBLIC_API_URL`, `PUBLIC_SOCKET_URL`, etc.). Les valeurs par défaut laissent l’API/Mongo privés en développement, mais sur la VM réglez `PUBLIC_HOST=195.15.242.237` et ajustez les bindings (`API_BIND_HOST`, `MONGO_BIND_HOST`, …) pour exposer les services attendus.
 
 ### 3. Lancer les services
 
@@ -76,6 +76,10 @@ Prérequis : Docker Engine, `docker compose` et les ports `27017`, `3000`, `51
 1. Configurez la racine `.env` selon votre contexte (développement local ou VM). Pour la VM fournie par le professeur :
 
    ```dotenv
+   PUBLIC_HOST=195.15.242.237
+   PUBLIC_WEB_ORIGIN=http://195.15.242.237:5173
+   PUBLIC_API_URL=http://195.15.242.237:3000/api
+   PUBLIC_SOCKET_URL=http://195.15.242.237:3000
    WEB_BIND_HOST=0.0.0.0
    API_BIND_HOST=195.15.242.237
    MONGO_BIND_HOST=195.15.242.237
@@ -96,6 +100,11 @@ Les ports exposés sont configurés pour répondre aux contraintes suivantes :
 | API + Socket.IO      | `api`            | `${API_BIND_HOST:-127.0.0.1}:${API_PORT:-3000}`   | Accessible localement par défaut, configurable pour la VM. |
 | MongoDB              | `mongo`          | `${MONGO_BIND_HOST:-127.0.0.1}:${MONGO_PORT:-27017}`  | Restreint à la boucle locale sauf si vous exposez explicitement la base pour la VM. |
 | Mongo Express (UI)   | `mongo-express`  | `${MONGO_EXPRESS_BIND_HOST:-127.0.0.1}:${MONGO_EXPRESS_PORT:-8081}`   | Interface d’administration Mongo, à exposer uniquement si nécessaire. |
+
+Les entrées `PUBLIC_*` du fichier `.env` sont transmises aux conteneurs : `PUBLIC_WEB_ORIGIN` alimente
+`ALLOWED_ORIGINS` côté API, tandis que `PUBLIC_API_URL` et `PUBLIC_SOCKET_URL` configurent automatiquement
+le frontend. Il suffit donc de renseigner une fois l'adresse publique de la VM (195.15.242.237) pour que
+les différents services exposent les bonnes URLs.
 
 Après le démarrage, `docker compose ps` affiche directement les noms des services (`mongo`, `mongo-express`, `api`, `web`) au lieu d’adresses IP, ce qui facilite le suivi des conteneurs actifs. Dans cet environnement d’évaluation, Docker n’est pas disponible (`bash: command not found: docker`) ; exécutez cette commande sur une machine équipée de Docker.
 

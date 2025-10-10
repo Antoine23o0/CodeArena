@@ -19,7 +19,7 @@ export default function Register() {
 
     try {
       await register(username, password);
-      navigate("/login");
+      navigate("/");
     } catch {
       alert("Erreur lors de l’inscription. Vérifie tes informations.");
     }

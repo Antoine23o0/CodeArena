@@ -20,21 +20,24 @@ export default function Navbar() {
 
       {/* Liens */}
       <div className="flex items-center space-x-6">
+        <Link to="/" className="hover:text-blue-400 transition">
+          Concours
+        </Link>
+        <Link to="/scoreboard/global" className="hover:text-blue-400 transition">
+          Scoreboard
+        </Link>
+        {user && (
+          <Link to="/profile" className="hover:text-blue-400 transition">
+            Profil
+          </Link>
+        )}
         {user ? (
-          <>
-            <Link to="/" className="hover:text-blue-400 transition">
-              Concours
-            </Link>
-            <Link to="/scoreboard/global" className="hover:text-blue-400 transition">
-              Scoreboard
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition"
-            >
-              Déconnexion
-            </button>
-          </>
+          <button
+            onClick={handleLogout}
+            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition"
+          >
+            Déconnexion
+          </button>
         ) : (
           <>
             <Link to="/login" className="hover:text-blue-400 transition">

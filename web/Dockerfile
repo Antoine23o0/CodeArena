@@ -1,14 +1,27 @@
-# Image Node plus récente compatible Vite
-FROM node:20
+# syntax=docker/dockerfile:1
 
+FROM node:20-alpine AS build
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci \
+    && npm cache clean --force
 
 COPY . .
 
-EXPOSE 5173
+ARG VITE_API_URL=http://localhost:3000/api
+ARG VITE_SOCKET_URL=http://localhost:3000
+ARG VITE_API_FALLBACK_PORT=3000
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
+ENV VITE_API_FALLBACK_PORT=$VITE_API_FALLBACK_PORT
+RUN npm run build
 
-# --host pour que le conteneur soit accessible depuis l'extérieur
-CMD ["npm", "run", "dev", "--", "--host"]
+FROM nginx:alpine AS runtime
+WORKDIR /usr/share/nginx/html
+
+COPY --from=build /app/dist ./
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

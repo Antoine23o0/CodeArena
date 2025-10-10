@@ -96,17 +96,19 @@ Les ports exposés sont configurés pour répondre aux contraintes suivantes :
 
 | Service              | Conteneur        | Binding hôte      | Description |
 |----------------------|------------------|-------------------|-------------|
-| Frontend (Vite)      | `web`            | `${WEB_BIND_HOST:-0.0.0.0}:${WEB_PORT:-5173}`     | Disponible publiquement (par défaut) sur l’adresse IP de la machine hôte. |
+| Frontend (Nginx)     | `web`            | `${WEB_BIND_HOST:-0.0.0.0}:${WEB_PORT:-5173}` → 80 | Site statique construit par Vite puis servi via Nginx. |
 | API + Socket.IO      | `api`            | `${API_BIND_HOST:-127.0.0.1}:${API_PORT:-3000}`   | Accessible localement par défaut, configurable pour la VM. |
 | MongoDB              | `mongo`          | `${MONGO_BIND_HOST:-127.0.0.1}:${MONGO_PORT:-27017}`  | Restreint à la boucle locale sauf si vous exposez explicitement la base pour la VM. |
 | Mongo Express (UI)   | `mongo-express`  | `${MONGO_EXPRESS_BIND_HOST:-127.0.0.1}:${MONGO_EXPRESS_PORT:-8081}`   | Interface d’administration Mongo, à exposer uniquement si nécessaire. |
 
 Les entrées `PUBLIC_*` du fichier `.env` sont transmises aux conteneurs : `PUBLIC_WEB_ORIGIN` alimente
-`ALLOWED_ORIGINS` côté API, tandis que `PUBLIC_API_URL` et `PUBLIC_SOCKET_URL` configurent automatiquement
-le frontend. Il suffit donc de renseigner une fois l'adresse publique de la VM (195.15.242.237) pour que
-les différents services exposent les bonnes URLs.
+`ALLOWED_ORIGINS` côté API, tandis que `PUBLIC_API_URL` et `PUBLIC_SOCKET_URL` sont injectées comme
+arguments de build Vite. Après toute modification de ces variables, relancez `docker compose build web`
+ou `docker compose up --build` pour générer à nouveau le bundle statique avec les bonnes URLs publiques.
 
 Après le démarrage, `docker compose ps` affiche directement les noms des services (`mongo`, `mongo-express`, `api`, `web`) au lieu d’adresses IP, ce qui facilite le suivi des conteneurs actifs. Dans cet environnement d’évaluation, Docker n’est pas disponible (`bash: command not found: docker`) ; exécutez cette commande sur une machine équipée de Docker.
+
+> ℹ️ Les images Docker ont été allégées : l’API utilise désormais `node:20-slim` avec uniquement les dépendances système nécessaires (Python, GCC, OpenJDK) pour le runner, tandis que le frontend est compilé en bundle statique servi par `nginx:alpine`.
 
 ## Fonctionnalités clés
 

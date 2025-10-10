@@ -1,0 +1,10 @@
+node_modules
+npm-debug.log
+Dockerfile
+.env
+.env.*
+logs
+coverage
+tests
+.idea
+.vscode

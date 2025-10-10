@@ -8,6 +8,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import apiRouter from './index.js';
 import registerSocketHandlers from './socket.js';
 import eventBus, { EVENTS } from './services/eventBus.js';
+import { seedPredefinedContests } from './services/contestSeeder.js';
 
 dotenv.config();
 
@@ -35,7 +36,12 @@ const mongoUri =
   'mongodb://root:rootpassword@mongo:27017/codearena?authSource=admin';
 mongoose
   .connect(mongoUri)
-  .then(() => console.log(`Connected to MongoDB at ${mongoUri}`))
+  .then(async () => {
+    console.log(`Connected to MongoDB at ${mongoUri}`);
+    if (process.env.AUTO_SEED_CONTESTS !== 'false') {
+      await seedPredefinedContests({ logger: console });
+    }
+  })
   .catch((err) => {
     console.error('Failed to connect to MongoDB', err);
     process.exit(1);

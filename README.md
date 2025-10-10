@@ -58,7 +58,9 @@ Le frontend est disponible sur `http://localhost:5173` (ou depuis l’adresse IP
 
 ### 4. Peupler la base avec des concours d'exemple
 
-Une fois MongoDB opérationnel, vous pouvez injecter dix concours thématiques prêts à l'emploi pour tester le parcours complet :
+Une fois MongoDB opérationnel, l'API charge automatiquement les dix concours thématiques si
+`AUTO_SEED_CONTESTS` (voir `api/.env`) n'est pas positionné à `false`. Pour relancer le peuplement
+manuellement ou mettre à jour les données après modification des seeds, utilisez la commande suivante :
 
 ```bash
 cd api

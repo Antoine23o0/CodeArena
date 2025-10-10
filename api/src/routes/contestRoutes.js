@@ -63,7 +63,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const contest = await Contest.findById(req.params.id).populate({
       path: 'problemsList',
-      select: 'title difficulty maxScore',
+      select: 'title difficulty maxScore allowedLanguages',
     });
     if (!contest) {
       return res.status(404).json({ error: 'Contest not found' });
@@ -80,7 +80,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
 router.get('/:id/problems', optionalAuth, async (req, res) => {
   try {
     const problems = await Problem.find({ contest: req.params.id }).select(
-      'title difficulty maxScore',
+      'title difficulty maxScore allowedLanguages',
     );
     return res.json(problems);
   } catch (error) {

@@ -48,11 +48,20 @@ const statusColors = {
   "Time Limit Exceeded": "text-amber-400",
 };
 
+const FALLBACK_LANGUAGES = ["python", "java", "c"];
+
+const LANGUAGE_LABELS = {
+  python: "Python 3",
+  java: "Java 17",
+  c: "GCC (C11)",
+};
+
 export default function Submit() {
   const { id: contestId, problemId } = useParams();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [problem, setProblem] = useState(null);
+  const [allowedLanguages, setAllowedLanguages] = useState([...FALLBACK_LANGUAGES]);
   const [language, setLanguage] = useState("python");
   const [sourceCode, setSourceCode] = useState(templates.python);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,7 +80,16 @@ export default function Submit() {
     }
     api
       .get(`/problems/${problemId}`)
-      .then((res) => setProblem(res.data))
+      .then((res) => {
+        setProblem(res.data);
+        const fromServer =
+          Array.isArray(res.data.allowedLanguages) && res.data.allowedLanguages.length > 0
+            ? res.data.allowedLanguages
+            : FALLBACK_LANGUAGES;
+        const normalized = fromServer.map((lang) => `${lang}`.toLowerCase());
+        setAllowedLanguages(normalized);
+        setLanguage((prev) => (normalized.includes(prev) ? prev : normalized[0] ?? "python"));
+      })
       .catch(() => setProblem(null));
     api
       .get(`/submissions/contest/${contestId}`)
@@ -169,9 +187,11 @@ export default function Submit() {
                 onChange={(event) => setLanguage(event.target.value)}
                 className="mt-1 bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white"
               >
-                <option value="python">Python 3</option>
-                <option value="java">Java 17</option>
-                <option value="c">GCC (C11)</option>
+                {allowedLanguages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {LANGUAGE_LABELS[lang] ?? lang.toUpperCase()}
+                  </option>
+                ))}
               </select>
             </label>
             <button

@@ -67,6 +67,14 @@ router.post('/', authenticate, async (req, res) => {
       return res.status(400).json({ error: 'Problem does not belong to this contest' });
     }
 
+    if (
+      Array.isArray(problem.allowedLanguages) &&
+      problem.allowedLanguages.length > 0 &&
+      !problem.allowedLanguages.includes(normalizedLanguage)
+    ) {
+      return res.status(400).json({ error: 'Language not allowed for this problem' });
+    }
+
     const submission = await Submission.create({
       userId: req.user._id,
       problemId,

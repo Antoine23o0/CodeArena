@@ -144,6 +144,17 @@ export default function Contest() {
                     <h3 className="text-lg font-semibold text-white">{problem.title}</h3>
                     <p className="text-sm text-slate-400 capitalize">Difficulté : {problem.difficulty}</p>
                     <p className="text-sm text-slate-400">Score max : {problem.maxScore}</p>
+                    <p className="text-sm text-slate-400">
+                      Langages :{' '}
+                      {(problem.allowedLanguages?.length
+                        ? problem.allowedLanguages
+                        : ['python', 'java', 'c']
+                      )
+                        .map((lang) =>
+                          ({ python: 'Python', java: 'Java', c: 'C' }[lang] ?? lang.toUpperCase()),
+                        )
+                        .join(', ')}
+                    </p>
                   </div>
                   <Link
                     to={`/contest/${id}/problem/${problem._id}`}

@@ -74,6 +74,16 @@ export const seedPredefinedContests = async ({ logger = console } = {}) => {
       problem.timeLimitMs = problemSeed.timeLimitMs ?? 3000;
       problem.memoryLimitMb = problemSeed.memoryLimitMb ?? 256;
       problem.testCases = testCases;
+      let allowedLanguages =
+        Array.isArray(problemSeed.allowedLanguages) && problemSeed.allowedLanguages.length > 0
+          ? problemSeed.allowedLanguages
+              .map((lang) => `${lang}`.toLowerCase())
+              .filter((lang) => ['python', 'java', 'c'].includes(lang))
+          : null;
+      if (!allowedLanguages || allowedLanguages.length === 0) {
+        allowedLanguages = ['python', 'java', 'c'];
+      }
+      problem.allowedLanguages = allowedLanguages;
       await problem.save();
 
       problemIds.push(problem._id);

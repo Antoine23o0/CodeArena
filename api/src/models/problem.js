@@ -51,6 +51,15 @@ const problemSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    allowedLanguages: {
+      type: [
+        {
+          type: String,
+          enum: ['python', 'java', 'c'],
+        },
+      ],
+      default: ['python', 'java', 'c'],
+    },
   },
   { timestamps: true },
 );

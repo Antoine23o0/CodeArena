@@ -5,9 +5,28 @@ import { authenticate, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
+const SUPPORTED_LANGUAGES = ['python', 'java', 'c'];
+
+const sanitizeLanguages = (value) => {
+  if (!Array.isArray(value)) {
+    return null;
+  }
+  const normalized = value
+    .map((lang) => `${lang}`.toLowerCase())
+    .filter((lang) => SUPPORTED_LANGUAGES.includes(lang));
+  if (normalized.length === 0) {
+    return [...SUPPORTED_LANGUAGES];
+  }
+  return normalized;
+};
+
 router.post('/', authenticate, async (req, res) => {
   try {
     const problem = new Problem(req.body);
+    const allowedLanguages = sanitizeLanguages(req.body.allowedLanguages);
+    if (allowedLanguages) {
+      problem.allowedLanguages = allowedLanguages;
+    }
     await problem.save();
 
     if (problem.contest) {
@@ -62,6 +81,10 @@ router.put('/:id', authenticate, async (req, res) => {
     }
 
     Object.assign(previous, req.body);
+    const allowedLanguages = sanitizeLanguages(req.body.allowedLanguages);
+    if (allowedLanguages) {
+      previous.allowedLanguages = allowedLanguages;
+    }
     await previous.save();
 
     if (previous.contest) {

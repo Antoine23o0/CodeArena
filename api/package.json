@@ -3,6 +3,16 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",
+<<<<<<< HEAD
+=======
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "node --test",
+    "test:integration": "node --test tests/integration.test.js",
+    "seed:contests": "node scripts/seedContests.js"
+  },
+>>>>>>> origin/codex/review-project-and-provide-feedback-kmcakh
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -13,6 +23,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+<<<<<<< HEAD
     "mongoose": "^8.19.0"
   },
   "devDependencies": {
@@ -26,5 +37,9 @@
     "dev": "nodemon index.js",
     "test": "mocha --exit --recursive \"test/**/*.test.js\"",
     "jest": "^30.2.0"
+=======
+    "mongoose": "^8.19.0",
+    "socket.io": "^4.7.5"
+>>>>>>> origin/codex/review-project-and-provide-feedback-kmcakh
   }
 }

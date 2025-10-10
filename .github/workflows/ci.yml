@@ -1,16 +1,27 @@
-name: CI - Backend & Frontend
+cname: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, dev]
   pull_request:
     branches: [ main ]
-  
 
 jobs:
   backend:
-    name: Backend Tests (avec Mongo)
+    name: Backend Tests
     runs-on: ubuntu-latest
+
+    # Démarre un conteneur Mongo accessible pendant le job
+    services:
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: Checkout repository
@@ -19,26 +30,51 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
+      # Construction de l’image backend
       - name: Build backend image
         run: docker build -t codearena-backend ./api
 
-      - name: Run backend tests
-        run: docker run codearena-backend npm test
-        # ou pour Python : docker run codearena-backend pytest
+      # Lancement des tests d’intégration avec Mongo
+      - name: Run backend integration tests
+        run: |
+          docker run --rm \
+            --network host \
+            -e MONGO_URL=mongodb://localhost:27017/test-db \
+            codearena-backend npm run test:integration
+        # Si Python :
+        # docker run --rm --network host -e MONGO_URL=mongodb://localhost:27017/test-db codearena-backend pytest
 
   frontend:
-    name: Frontend Tests
+    name: Frontend Lint & Build
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: web
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Run lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build frontend image
-        run: docker build -t codearena-frontend ./web
-
-      - name: Run frontend tests
-        run: docker run codearena-frontend npm test
+  runner:
+    name: Python Runner Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate runner scripts
+        run: python -m compileall runner

@@ -1,32 +1,67 @@
 import mongoose from "mongoose";
 
-const problemSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true
+const problemSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    difficulty: {
+      type: String,
+      enum: ['Easy', 'Medium', 'Hard'],
+      default: 'Medium',
+    },
+    maxScore: {
+      type: Number,
+      default: 100,
+    },
+    contest: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Contest',
+    },
+    timeLimitMs: {
+      type: Number,
+      default: 3000,
+    },
+    memoryLimitMb: {
+      type: Number,
+      default: 256,
+    },
+    testCases: {
+      type: [
+        {
+          input: {
+            type: String,
+            default: '',
+          },
+          expectedOutput: {
+            type: String,
+            required: true,
+          },
+          hidden: {
+            type: Boolean,
+            default: false,
+          },
+        },
+      ],
+      default: [],
+    },
+    allowedLanguages: {
+      type: [
+        {
+          type: String,
+          enum: ['python', 'java', 'c'],
+        },
+      ],
+      default: ['python', 'java', 'c'],
+    },
   },
-  description: {
-    type: String,
-    required: true
-  },
-  inputs: {
-    type: [String],
-    default: []
-  },
-  expectedOutputs: {
-    type: [String],
-    default: []
-  },
-  difficulty: {
-    type: String,
-    enum: ["Easy", "Medium", "Hard"],
-    default: "Medium"
-  },
-  maxScore: {
-    type: Number,
-    default: 100
-  }
-}, { timestamps: true });
+  { timestamps: true },
+);
 
 export default mongoose.model("Problem", problemSchema);

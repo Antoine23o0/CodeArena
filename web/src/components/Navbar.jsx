@@ -23,7 +23,19 @@ export default function Navbar() {
 
       {/* Liens */}
       <div className="flex items-center space-x-6">
+        <Link to="/" className="hover:text-blue-400 transition">
+          Concours
+        </Link>
+        <Link to="/scoreboard/global" className="hover:text-blue-400 transition">
+          Scoreboard
+        </Link>
+        {user && (
+          <Link to="/profile" className="hover:text-blue-400 transition">
+            Profil
+          </Link>
+        )}
         {user ? (
+<<<<<<< HEAD
           <>
             <Link to="/contests" className="hover:text-blue-400 transition">
               Défis
@@ -44,6 +56,14 @@ export default function Navbar() {
               Déconnexion
             </button>
           </>
+=======
+          <button
+            onClick={handleLogout}
+            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition"
+          >
+            Déconnexion
+          </button>
+>>>>>>> origin/codex/review-project-and-provide-feedback-kmcakh
         ) : (
           <>
             <Link to="/login" className="hover:text-blue-400 transition">

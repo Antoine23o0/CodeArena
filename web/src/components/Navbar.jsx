@@ -26,6 +26,11 @@ export default function Navbar() {
         <Link to="/scoreboard/global" className="hover:text-blue-400 transition">
           Scoreboard
         </Link>
+        {user && (
+          <Link to="/profile" className="hover:text-blue-400 transition">
+            Profil
+          </Link>
+        )}
         {user ? (
           <button
             onClick={handleLogout}

@@ -1,14 +1,18 @@
-# Image Node plus récente compatible Vite
-FROM node:20
+# Étape 1 : build du front
+FROM node:20-alpine AS builder
 
 WORKDIR /app
-
 COPY package*.json ./
 RUN npm install
-
 COPY . .
+RUN npm run build
 
-EXPOSE 5173
+# Étape 2 : image finale ultra-légère avec un serveur statique
+FROM nginx:alpine
 
-# --host pour que le conteneur soit accessible depuis l'extérieur
-CMD ["npm", "run", "dev", "--", "--host"]
+# Copier les fichiers buildés de la première étape
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -12,14 +12,31 @@ const templates = {
 if __name__ == "__main__":
     solve()
 `,
-  javascript: `const fs = require("fs");
+  java: `import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
-function solve() {
-  const data = fs.readFileSync(0, "utf-8").trim();
-  console.log(data);
+public class Main {
+    public static void main(String[] args) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String line = reader.readLine();
+        if (line == null) {
+            return;
+        }
+        System.out.println(line.trim());
+    }
 }
+`,
+  c: `#include <stdio.h>
+#include <string.h>
 
-solve();
+int main(void) {
+    char buffer[1024];
+    if (fgets(buffer, sizeof(buffer), stdin)) {
+        buffer[strcspn(buffer, "\n")] = '\0';
+        printf("%s", buffer);
+    }
+    return 0;
+}
 `,
 };
 
@@ -63,7 +80,7 @@ export default function Submit() {
   }, [contestId, problemId, user, navigate]);
 
   useEffect(() => {
-    setSourceCode(templates[language]);
+    setSourceCode(templates[language] ?? "");
   }, [language]);
 
   const submitCode = async (event) => {
@@ -153,7 +170,8 @@ export default function Submit() {
                 className="mt-1 bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white"
               >
                 <option value="python">Python 3</option>
-                <option value="javascript">Node.js 20</option>
+                <option value="java">Java 17</option>
+                <option value="c">GCC (C11)</option>
               </select>
             </label>
             <button

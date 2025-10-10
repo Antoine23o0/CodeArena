@@ -73,7 +73,7 @@ Cette commande construit les services `api` (Express + Socket.IO), `web` (Vite) 
 - **Auth & profils** : inscription/connexion, récupération du profil via token.
 - **Concours** : création, statut automatique (planifié, en cours, terminé), inscription des participants, liste des problèmes et scores agrégés.
 - **Problèmes** : gestion de cas de test publics/privés, barème configurable, limites de temps/mémoire.
-- **Soumissions** : évaluation sandbox (Python/Node.js) avec rapport détaillé (stdout/stderr, temps total, résultat par test).
+- **Soumissions** : évaluation sandbox (Python/Java/C) avec rapport détaillé (stdout/stderr, temps total, résultat par test).
 - **Scoreboards** : calcul du meilleur score par problème, classement contestuel + global, diffusion temps réel via Socket.IO (`scoreboard:subscribe`).
 - **Frontend** : éditeur minimal intégré, historique personnel, vues concours/scoreboards synchronisées en direct.
 
@@ -84,6 +84,8 @@ Aucun test automatique n’a encore été ajouté. Le runner Python peut être i
 ```bash
 echo '{"language":"python","code":"print(1)","testCases":[{"input":"","expectedOutput":"1"}]}' | python3 runner/run.py
 ```
+
+Adaptez `language` à `java` ou `c` et fournissez un code compatible (`Main` pour Java, fonction `main` pour C) pour tester les autres environnements.
 
 ## Contributions
 

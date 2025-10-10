@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+
 """Simple sandbox runner for CodeArena submissions.
 
 The script receives a JSON payload on stdin with the following structure:
 
 {
-  "language": "python" | "javascript",
+  "language": "python" | "java" | "c",
   "code": "print('hello')",
   "testCases": [{"input": "", "expectedOutput": ""}, ...],
   "timeLimitMs": 3000
@@ -15,12 +16,13 @@ It executes the code once per test case and returns a JSON report on stdout.
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
 from dataclasses import dataclass
-from typing import List
+from typing import Callable, List, Tuple
 
 
 @dataclass
@@ -35,9 +37,77 @@ class ExecutionError(Exception):
     """Raised when the runner payload is invalid."""
 
 
+class CompilationError(Exception):
+    """Raised when the source cannot be compiled."""
+
+    def __init__(self, message: str, stderr: str = ""):
+        super().__init__(message)
+        self.stderr = stderr
+
+
+def create_python_script(code: str) -> Tuple[List[str], Callable[[], None]]:
+    fd, path = tempfile.mkstemp(suffix=".py")
+    with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        handle.write(code)
+
+    def cleanup() -> None:
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+
+    return ["python3", path], cleanup
+
+
+def create_java_command(code: str) -> Tuple[List[str], Callable[[], None]]:
+    temp_dir = tempfile.mkdtemp()
+    source_path = os.path.join(temp_dir, "Main.java")
+    with open(source_path, "w", encoding="utf-8") as handle:
+        handle.write(code)
+
+    compilation = subprocess.run(
+        ["javac", source_path],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if compilation.returncode != 0:
+        stderr = compilation.stderr.decode("utf-8", errors="ignore")
+        raise CompilationError("Java compilation failed", stderr=stderr)
+
+    command = ["java", "-cp", temp_dir, "Main"]
+
+    def cleanup() -> None:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+    return command, cleanup
+
+
+def create_c_command(code: str) -> Tuple[List[str], Callable[[], None]]:
+    temp_dir = tempfile.mkdtemp()
+    source_path = os.path.join(temp_dir, "main.c")
+    binary_path = os.path.join(temp_dir, "a.out")
+    with open(source_path, "w", encoding="utf-8") as handle:
+        handle.write(code)
+
+    compilation = subprocess.run(
+        ["gcc", source_path, "-std=c11", "-O2", "-pipe", "-o", binary_path],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if compilation.returncode != 0:
+        stderr = compilation.stderr.decode("utf-8", errors="ignore")
+        raise CompilationError("C compilation failed", stderr=stderr)
+
+    def cleanup() -> None:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+    return [binary_path], cleanup
+
+
 COMMAND_BUILDERS = {
-    "python": lambda script_path: ["python3", script_path],
-    "javascript": lambda script_path: ["node", script_path],
+    "python": create_python_script,
+    "java": create_java_command,
+    "c": create_c_command,
 }
 
 
@@ -47,14 +117,6 @@ def load_payload() -> dict:
         return json.loads(raw_payload)
     except json.JSONDecodeError as exc:
         raise ExecutionError(f"Invalid payload: {exc}") from exc
-
-
-def create_script(language: str, code: str) -> str:
-    suffix = ".py" if language == "python" else ".js"
-    fd, path = tempfile.mkstemp(suffix=suffix)
-    with os.fdopen(fd, "w", encoding="utf-8") as handle:
-        handle.write(code)
-    return path
 
 
 def run_single_case(command: List[str], input_payload: str, timeout: float):
@@ -91,9 +153,19 @@ def evaluate(payload: dict) -> dict:
         raise ExecutionError("Source code is required")
     if not isinstance(test_cases, list):
         raise ExecutionError("testCases must be a list")
+    try:
+        command, cleanup = COMMAND_BUILDERS[language](code)
+    except CompilationError as exc:
+        return {
+            "status": "Compilation Error",
+            "executionTimeMs": 0,
+            "stdout": "",
+            "stderr": exc.stderr or str(exc),
+            "testResults": [],
+        }
+    except Exception as exc:
+        raise ExecutionError(str(exc)) from exc
 
-    script_path = create_script(language, code)
-    command = COMMAND_BUILDERS[language](script_path)
     results: List[TestCaseResult] = []
     total_time = 0.0
     aggregated_stdout = []
@@ -175,10 +247,7 @@ def evaluate(payload: dict) -> dict:
             ],
         }
     finally:
-        try:
-            os.remove(script_path)
-        except OSError:
-            pass
+        cleanup()
 
 
 def main():

@@ -14,7 +14,7 @@ import {
 
 const router = express.Router();
 
-const allowedLanguages = ['python', 'javascript'];
+const allowedLanguages = ['python', 'java', 'c'];
 
 const normalizeLanguage = (value) => (typeof value === 'string' ? value.toLowerCase() : undefined);
 

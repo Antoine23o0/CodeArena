@@ -25,9 +25,8 @@ const contestSchema = new mongoose.Schema({
   scores: [{
     utilisateurId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
+      ref: 'User',
     },
-    totalScore: Number
   }]
 }, { timestamps: true });
 

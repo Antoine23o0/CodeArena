@@ -17,6 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ContestList />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/contests" element={<ContestList />} />
           <Route path="/register" element={<Register />} />
           <Route path="/contest/:id" element={<Contest />} />
           <Route path="/contest/:id/problem/:problemId" element={<Submit />} />

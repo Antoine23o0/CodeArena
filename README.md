@@ -26,17 +26,19 @@ cd ../web && npm install
 
 ### 2. Variables d’environnement principales
 
-Des fichiers d’exemple sont fournis (`api/.env.example` et `web/.env.example`). Copiez-les puis ajustez les valeurs selon votre environnement :
+Des fichiers d’exemple sont fournis (`api/.env.example`, `web/.env.example` et `.env.example` à la racine pour Docker). Copiez-les puis ajustez les valeurs selon votre environnement :
 
 ```bash
 cp api/.env.example api/.env
 cp web/.env.example web/.env
+cp .env.example .env
 ```
 
 Valeurs par défaut proposées :
 
-- **Backend** : `MONGO_URI` pointe vers une instance locale (ou via Docker avec les identifiants `root/rootpassword`), `JWT_SECRET` doit être remplacé par un secret fort, `ALLOWED_ORIGINS` répertorie les origines autorisées et `RUNNER_PATH` indique où se trouve `runner/run.py`.
-- **Frontend** : `VITE_API_URL` cible l’API (`/api`) et `VITE_SOCKET_URL` la passerelle Socket.IO.
+- **Backend** : `MONGO_URI` pointe vers une instance locale (ou via Docker avec les identifiants `root/rootpassword`), `JWT_SECRET` doit être remplacé par un secret fort, `ALLOWED_ORIGINS` répertorie les origines autorisées (ajoutez `http://195.15.242.237:5173` pour la VM) et `RUNNER_PATH` indique où se trouve `runner/run.py`.
+- **Frontend** : `VITE_API_URL` cible l’API et `VITE_SOCKET_URL` la passerelle Socket.IO. En production sur la VM, remplacez `localhost` par `http://195.15.242.237` suivi du port approprié.
+- **Docker compose** : `.env` contrôle les bindings de ports (`WEB_BIND_HOST`, `API_BIND_HOST`, etc.). L’exemple laisse l’API/Mongo privés en développement, mais vous pouvez fixer `API_BIND_HOST=195.15.242.237` (ainsi que les valeurs Mongo) pour rendre ces services accessibles depuis l’extérieur de la VM.
 
 ### 3. Lancer les services
 
@@ -58,18 +60,29 @@ Le frontend est disponible sur `http://localhost:5173` (ou depuis l’adresse IP
 
 Prérequis : Docker Engine, `docker compose` et les ports `27017`, `3000`, `5173`, `8081` libres.
 
-```bash
-docker compose up --build
-```
+1. Configurez la racine `.env` selon votre contexte (développement local ou VM). Pour la VM fournie par le professeur :
+
+   ```dotenv
+   WEB_BIND_HOST=0.0.0.0
+   API_BIND_HOST=195.15.242.237
+   MONGO_BIND_HOST=195.15.242.237
+   MONGO_EXPRESS_BIND_HOST=195.15.242.237
+   ```
+
+2. Lancez la stack :
+
+   ```bash
+   docker compose up --build
+   ```
 
 Les ports exposés sont configurés pour répondre aux contraintes suivantes :
 
 | Service              | Conteneur                 | Binding hôte      | Description |
 |----------------------|---------------------------|-------------------|-------------|
-| Frontend (Vite)      | `codearena-web`           | `0.0.0.0:5173`     | Disponible publiquement sur l’adresse IP de la machine hôte. |
-| API + Socket.IO      | `codearena-api`           | `127.0.0.1:3000`   | Accessible uniquement en local (le frontend y accède via le navigateur). |
-| MongoDB              | `codearena-mongo`         | `127.0.0.1:27017`  | Restreint à la boucle locale pour éviter une exposition accidentelle. |
-| Mongo Express (UI)   | `codearena-mongo-express` | `127.0.0.1:8081`   | Interface d’administration Mongo disponible depuis le poste local. |
+| Frontend (Vite)      | `codearena-web`           | `${WEB_BIND_HOST:-0.0.0.0}:${WEB_PORT:-5173}`     | Disponible publiquement (par défaut) sur l’adresse IP de la machine hôte. |
+| API + Socket.IO      | `codearena-api`           | `${API_BIND_HOST:-127.0.0.1}:${API_PORT:-3000}`   | Accessible localement par défaut, configurable pour la VM. |
+| MongoDB              | `codearena-mongo`         | `${MONGO_BIND_HOST:-127.0.0.1}:${MONGO_PORT:-27017}`  | Restreint à la boucle locale sauf si vous exposez explicitement la base pour la VM. |
+| Mongo Express (UI)   | `codearena-mongo-express` | `${MONGO_EXPRESS_BIND_HOST:-127.0.0.1}:${MONGO_EXPRESS_PORT:-8081}`   | Interface d’administration Mongo, à exposer uniquement si nécessaire. |
 
 Après le démarrage, `docker compose ps` affiche directement ces noms de conteneurs pour faciliter le suivi des services. Dans cet environnement d’évaluation, Docker n’est pas disponible (`bash: command not found: docker`) ; exécutez cette commande sur une machine équipée de Docker.
 

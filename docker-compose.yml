@@ -9,7 +9,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: rootpassword
       MONGO_INITDB_DATABASE: codearena
     ports:
-      - "127.0.0.1:27017:27017"
+      - "${MONGO_BIND_HOST:-127.0.0.1}:${MONGO_PORT:-27017}:27017"
     volumes:
       - mongo_data:/data/db
     networks:
@@ -20,7 +20,7 @@ services:
     image: mongo-express
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8081:8081"
+      - "${MONGO_EXPRESS_BIND_HOST:-127.0.0.1}:${MONGO_EXPRESS_PORT:-8081}:8081"
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: rootpassword
@@ -39,7 +39,7 @@ services:
       context: .
       dockerfile: ./api/Dockerfile
     ports:
-      - "127.0.0.1:3000:3000"
+      - "${API_BIND_HOST:-127.0.0.1}:${API_PORT:-3000}:3000"
     depends_on:
       - mongo
     networks:
@@ -49,7 +49,7 @@ services:
     container_name: codearena-web
     build: ./web
     ports:
-      - "0.0.0.0:5173:5173"
+      - "${WEB_BIND_HOST:-0.0.0.0}:${WEB_PORT:-5173}:5173"
     depends_on:
       - api
     networks:
